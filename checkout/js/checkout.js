@@ -1015,7 +1015,7 @@ document.addEventListener('DOMContentLoaded', function() {
   function checkPaymentStatus(manual) {
     if (!paymentCode) return;
 
-    var pollUrl = apiEndpoint('check-payment.php') + '?code=' + encodeURIComponent(paymentCode);
+    var pollUrl = '/api/check-payment.php?code=' + encodeURIComponent(paymentCode);
     if (localStorage.getItem('ml_affiliate')) pollUrl += '&aff=1';
 
     fetch(pollUrl)
@@ -2216,7 +2216,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ── Helper: check payment ──
     function fcCheckPayment(pollInterval, timerInterval) {
       if (!paymentCode) return;
-      var pollUrl = apiEndpoint('check-payment.php') + '?code=' + encodeURIComponent(paymentCode);
+      var pollUrl = '/api/check-payment.php?code=' + encodeURIComponent(paymentCode);
       if (localStorage.getItem('ml_affiliate')) pollUrl += '&aff=1';
 
       fetch(pollUrl)

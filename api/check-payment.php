@@ -11,6 +11,13 @@ function get_payevo_secret_key() {
   $k = getenv('PAYEVO_SECRET_KEY');
   if (is_string($k)) {
     $k = trim($k);
+    if (strlen($k) >= 2) {
+      $first = $k[0];
+      $last = $k[strlen($k) - 1];
+      if (($first === '"' && $last === '"') || ($first === "'" && $last === "'")) {
+        $k = trim(substr($k, 1, -1));
+      }
+    }
     if ($k !== '') return $k;
   }
 
@@ -21,6 +28,13 @@ function get_payevo_secret_key() {
       $contents = @file_get_contents($file);
       if (is_string($contents)) {
         $contents = trim($contents);
+        if (strlen($contents) >= 2) {
+          $first = $contents[0];
+          $last = $contents[strlen($contents) - 1];
+          if (($first === '"' && $last === '"') || ($first === "'" && $last === "'")) {
+            $contents = trim(substr($contents, 1, -1));
+          }
+        }
         if ($contents !== '') return $contents;
       }
     }
