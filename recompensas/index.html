@@ -922,6 +922,37 @@ function renderProducts(filter) {
   var qs = window.location.search;
   var hash = window.location.hash || '';
 
+  function navigateToProduct(productId) {
+    var base = '../produtos/' + productId + '/index.html/';
+    var candidates = [base + 'indexdabd.html', base + 'index.html'];
+    var idx = 0;
+
+    function go(u) {
+      window.location.href = u + qs + hash;
+    }
+
+    function tryNext() {
+      if (idx >= candidates.length) return go(candidates[0]);
+      var u = candidates[idx++];
+
+      fetch(u, { method: 'HEAD', cache: 'no-store' })
+        .then(function(r) {
+          if (r && r.ok) return go(u);
+          return tryNext();
+        })
+        .catch(function() {
+          fetch(u, { method: 'GET', cache: 'no-store' })
+            .then(function(r) {
+              if (r && r.ok) return go(u);
+              return tryNext();
+            })
+            .catch(tryNext);
+        });
+    }
+
+    tryNext();
+  }
+
   // Active products
   var filtered = filter === 'todos' ? products : products.filter(function(p) { return p.cat === filter; });
 
@@ -968,7 +999,7 @@ function renderProducts(filter) {
       if (typeof ttq !== 'undefined') {
         ttq.track('ViewContent', { content_id: p.id, content_name: p.name, content_type: 'product' });
       }
-      window.location.href = '../produtos/' + p.id + '/index.html/index.html' + qs + hash;
+      navigateToProduct(p.id);
     });
 
     grid.appendChild(card);

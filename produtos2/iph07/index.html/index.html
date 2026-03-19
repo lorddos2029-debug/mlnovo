@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>iPhone 15 (256GB) Rosa</title>
+    <link rel="icon" href="../../../recompensas/images/favicon.png" />
+    <style>
+      *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#ededed;color:#333}
+      .top{background:#ffe600;padding:8px 16px;font-size:12px;text-align:center}
+      .nav{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:12px;justify-content:space-between;padding:10px 16px;background:#fff;border-bottom:1px solid #eee}
+      .back{color:#3483fa;text-decoration:none;font-size:14px}
+      .logo{height:26px}
+      .wrap{max-width:520px;margin:0 auto}
+      .card{background:#fff;margin-top:10px;padding:14px 16px}
+      .title{font-size:16px;line-height:1.35;margin:6px 0 10px}
+      .img{width:100%;border-radius:10px;background:#fff;display:block}
+      .old{color:#999;text-decoration:line-through;margin-top:10px;font-size:13px}
+      .new{font-size:30px;margin-top:2px}
+      .inst{color:#00a650;font-size:13px;margin-top:4px}
+      .btns{margin-top:12px}
+      .buy{width:100%;border:0;border-radius:8px;padding:16px;background:#00a650;color:#fff;font-size:16px;cursor:pointer}
+      .secondary{width:100%;margin-top:10px;border:0;border-radius:8px;padding:14px;background:rgba(65,137,230,.15);color:#3483fa;font-size:16px;cursor:pointer}
+      .meta{margin-top:12px;color:#666;font-size:12px;line-height:1.5}
+    </style>
+  </head>
+  <body>
+    <div class="top">Promoção exclusiva: <strong>25 anos Mercado Livre</strong></div>
+    <div class="nav">
+      <a class="back" href="../../../recompensas/index.html">Voltar</a>
+      <img class="logo" src="../../../recompensas/images/logo.webp" alt="Mercado Livre" />
+      <span></span>
+    </div>
+
+    <div class="wrap">
+      <div class="card">
+        <div class="product-title title">iPhone 15 (256GB) Rosa</div>
+        <img class="main-image img" src="../../../recompensas/images/iphone_15_rosa.jpg" alt="iPhone 15 (256GB) Rosa" loading="eager" />
+        <div class="old-price old">R$ 5.849,10</div>
+        <div class="new-price new">R$ 97,90</div>
+        <div class="inst">12x R$ 8,16 sem juros</div>
+
+        <div class="btns">
+          <button id="buyBtn" class="buy">Comprar agora</button>
+          <button id="cartBtn" class="secondary">Adicionar ao carrinho</button>
+        </div>
+
+        <div class="meta">Últimas 6 unidades · Frete FULL · Compra Garantida</div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        var CART_KEY = 'ml_cart';
+        function parsePriceToCents(str) {
+          if (!str) return 0;
+          var cleaned = str.replace(/[^\d,\.]/g, '').replace(/\./g, '').replace(',', '.');
+          var val = parseFloat(cleaned);
+          return isNaN(val) ? 0 : Math.round(val * 100);
+        }
+        function getItems() {
+          try { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch (e) { return []; }
+        }
+        function addItem(item) {
+          var items = getItems();
+          for (var i = 0; i < items.length; i++) {
+            if (items[i].id === item.id) return items;
+          }
+          items.push({ id: item.id, name: item.name, price: item.price, oldPrice: item.oldPrice, image: item.image, quantity: 1 });
+          localStorage.setItem(CART_KEY, JSON.stringify(items));
+          return items;
+        }
+        function goCheckout() {
+          window.location.href = '../../../checkout/index.html' + window.location.search + window.location.hash;
+        }
+        var product = {
+          id: 'iph07',
+          name: 'iPhone 15 (256GB) Rosa',
+          price: parsePriceToCents('R$ 97,90'),
+          oldPrice: parsePriceToCents('R$ 5.849,10'),
+          image: new URL('../../../recompensas/images/iphone_15_rosa.jpg', window.location.href).href
+        };
+        document.getElementById('buyBtn').addEventListener('click', function(e) {
+          e.preventDefault();
+          addItem(product);
+          goCheckout();
+        });
+        document.getElementById('cartBtn').addEventListener('click', function(e) {
+          e.preventDefault();
+          addItem(product);
+          goCheckout();
+        });
+      })();
+    </script>
+  </body>
+</html>

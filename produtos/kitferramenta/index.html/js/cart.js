@@ -154,33 +154,70 @@ function getUTMQueryString() {
    ============================================ */
 
 function resolveUrl(absolutePath) {
+  function getSiteRoot() {
+    var p = window.location.pathname || '';
+    var markers = ['/produtos/', '/checkout/', '/recompensas/', '/roleta/', '/up/', '/vsl/', '/questionario/', '/prevsl/'];
+    var idx = -1;
+    for (var i = 0; i < markers.length; i++) {
+      var pos = p.indexOf(markers[i]);
+      if (pos !== -1 && (idx === -1 || pos < idx)) idx = pos;
+    }
+    if (idx === -1) return '';
+    return p.substring(0, idx);
+  }
+
   // On file:// protocol, absolute paths don't work
   // Convert to relative based on current location
   if (window.location.protocol === 'file:') {
-    // Detect depth: count how many folders deep we are from site root
-    // Product pages are at /produtos/{name}/index.html → depth 2
-    // Recompensas is at /recompensas/index.html → depth 1
-    // Checkout is at /checkout/index.html → depth 1
-    var path = window.location.pathname;
-    if (path.indexOf('https://promo-ml-25anos.shop/produtos/') !== -1) {
-      // We're 2 levels deep: /produtos/{name}/
-      return '../..' + absolutePath;
-    } else if (path.indexOf('https://promo-ml-25anos.shop/recompensas/') !== -1 ||
-               path.indexOf('https://promo-ml-25anos.shop/checkout/') !== -1 ||
-               path.indexOf('https://promo-ml-25anos.shop/roleta/') !== -1 ||
-               path.indexOf('https://promo-ml-25anos.shop/up/') !== -1 ||
-               path.indexOf('https://promo-ml-25anos.shop/vsl/') !== -1 ||
-               path.indexOf('https://promo-ml-25anos.shop/questionario/') !== -1 ||
-               path.indexOf('https://promo-ml-25anos.shop/prevsl/') !== -1) {
-      // We're 1 level deep
-      return '..' + absolutePath;
+    var path = window.location.pathname || '';
+    function relFrom(marker) {
+      var idx = path.indexOf(marker);
+      if (idx === -1) return null;
+      var after = path.substring(idx + marker.length);
+      var segs = after.split('/').filter(function(s) { return !!s; });
+      var baseSegs = path.charAt(path.length - 1) === '/' ? segs : segs.slice(0, -1);
+      var up = baseSegs.length + 1;
+      var prefix = '';
+      for (var i = 0; i < up; i++) prefix += '../';
+      return prefix + absolutePath.replace(/^\//, '');
     }
-    // Fallback: same level
-    return '.' + absolutePath;
+    var rel =
+      relFrom('/produtos/') ||
+      relFrom('/checkout/') ||
+      relFrom('/recompensas/') ||
+      relFrom('/roleta/') ||
+      relFrom('/up/') ||
+      relFrom('/vsl/') ||
+      relFrom('/questionario/') ||
+      relFrom('/prevsl/');
+    return rel || absolutePath;
   }
-  // On HTTP, absolute paths work fine
-  return absolutePath;
+  // On HTTP, we may be hosted under a subfolder (e.g. http://localhost/promo-ml-25anos.shop/)
+  return getSiteRoot() + absolutePath;
 }
+
+window.__mlAddAndGo = function() {
+  var productIdMatch = window.location.pathname.match(/\/produtos\/([^/]+)\//i);
+  var productId = productIdMatch ? productIdMatch[1] : 'produto';
+
+  var nameEl = document.querySelector('.product-title') || document.querySelector('.title') || document.querySelector('h1') || document.querySelector('h2');
+  var priceEl = document.querySelector('.new-price') || document.querySelector('.new-price2');
+  var oldPriceEl = document.querySelector('.old-price') || document.querySelector('.old-price2');
+  var imgEl = document.querySelector('.main-image') || document.querySelector('.image-slider img') || document.getElementById('mainImg') || document.querySelector('img');
+
+  var item = {
+    id: productId,
+    name: nameEl ? nameEl.textContent.trim() : 'Produto',
+    price: parsePriceToCents(priceEl ? priceEl.textContent : '0'),
+    oldPrice: parsePriceToCents(oldPriceEl ? oldPriceEl.textContent : '0'),
+    image: imgEl ? (imgEl.getAttribute ? (imgEl.getAttribute('src') || imgEl.src || '') : (imgEl.src || '')) : '',
+    quantity: 1
+  };
+
+  if (item.price <= 0) return;
+  if (typeof Cart !== 'undefined' && typeof Cart.addItem === 'function') Cart.addItem(item);
+  window.location.href = resolveUrl('/checkout/index.html') + getUTMQueryString();
+};
 
 /* ============================================
    Auto-detect Product Page & Override Buy Button
@@ -191,18 +228,8 @@ document.addEventListener('DOMContentLoaded', function() {
   if (buyBtn) {
 
     /* ── Extract product data (shared between ViewContent + AddToCart) ── */
-    var pathParts = window.location.pathname.split('https://promo-ml-25anos.shop/');
-    var filtered = [];
-    for (var i = 0; i < pathParts.length; i++) {
-      if (pathParts[i] && pathParts[i] !== '') filtered.push(pathParts[i]);
-    }
-    var lastPart = filtered[filtered.length - 1] || '';
-    var productId;
-    if (lastPart.indexOf('.html') !== -1 || lastPart === 'index.html') {
-      productId = filtered[filtered.length - 2] || 'produto';
-    } else {
-      productId = lastPart || 'produto';
-    }
+    var productIdMatch = window.location.pathname.match(/\/produtos\/([^/]+)\//i);
+    var productId = productIdMatch ? productIdMatch[1] : 'produto';
 
     var nameEl = document.querySelector('.product-title') || document.querySelector('.title');
     var priceEl = document.querySelector('.new-price') || document.querySelector('.new-price2');

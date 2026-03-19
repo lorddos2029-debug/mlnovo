@@ -11,12 +11,40 @@
     return qs ? '?' + qs : '';
   }
 
+  function resolveUrl(absolutePath) {
+    function getSiteRoot() {
+      var p = window.location.pathname || '';
+      var markers = ['/produtos/', '/checkout/', '/recompensas/', '/roleta/', '/up/', '/vsl/', '/questionario/', '/prevsl/'];
+      var idx = -1;
+      for (var i = 0; i < markers.length; i++) {
+        var pos = p.indexOf(markers[i]);
+        if (pos !== -1 && (idx === -1 || pos < idx)) idx = pos;
+      }
+      if (idx === -1) return '';
+      return p.substring(0, idx);
+    }
+
+    if (window.location.protocol === 'file:') {
+      var path = window.location.pathname || '';
+      if (path.indexOf('/produtos/') !== -1) return '../../..' + absolutePath;
+      if (path.indexOf('/recompensas/') !== -1 ||
+          path.indexOf('/checkout/') !== -1 ||
+          path.indexOf('/roleta/') !== -1 ||
+          path.indexOf('/up/') !== -1 ||
+          path.indexOf('/vsl/') !== -1 ||
+          path.indexOf('/questionario/') !== -1 ||
+          path.indexOf('/prevsl/') !== -1) return '..' + absolutePath;
+      return '.' + absolutePath;
+    }
+    return getSiteRoot() + absolutePath;
+  }
+
   function recompensasUrl() {
-    return '/recompensas/index.html' + getUTMQueryString() + (window.location.hash || '');
+    return resolveUrl('/recompensas/index.html') + getUTMQueryString() + (window.location.hash || '');
   }
 
   function checkoutUrl() {
-    return '/checkout/index.html' + getUTMQueryString() + (window.location.hash || '');
+    return resolveUrl('/checkout/index.html') + getUTMQueryString() + (window.location.hash || '');
   }
 
   function parsePriceToCents(str) {

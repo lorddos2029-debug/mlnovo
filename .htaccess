@@ -1,1 +1,2 @@
-SetEnv PAYEVO_SECRET_KEY "sk_like_1OvWpGCxFaPYwXIqHbAKxVrdolsCfoe1uqT9bOzxuXQqWycd"
+SetEnv UTMIFY_API_TOKEN "__ahiDw1LpuVqGqUdwwqhmIORKG4DwrAS1l36N__"
+SetEnv UTMIFY_PLATFORM "ShopPegou"
